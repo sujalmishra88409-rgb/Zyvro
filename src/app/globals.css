@@ -1,0 +1,301 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+/* ---------------------------------------------------------------
+   ZYVRO dark design tokens — near-black charcoal, warm off-white,
+   restrained green accent. Dark-only application.
+---------------------------------------------------------------- */
+:root,
+.dark {
+  --radius: 1rem;
+  --background: #0b0d0c;
+  --foreground: #edeae0;
+  --card: #101312;
+  --card-foreground: #edeae0;
+  --popover: #101312;
+  --popover-foreground: #edeae0;
+  --primary: #3ecf8e;
+  --primary-foreground: #07130c;
+  --secondary: #181c1a;
+  --secondary-foreground: #edeae0;
+  --muted: #171a19;
+  --muted-foreground: #8a918b;
+  --accent: #1e2422;
+  --accent-foreground: #edeae0;
+  --destructive: #e5484d;
+  --border: rgba(237, 234, 224, 0.1);
+  --input: rgba(237, 234, 224, 0.12);
+  --ring: #3ecf8e;
+  --chart-1: #3ecf8e;
+  --chart-2: #b3a27e;
+  --chart-3: #8a918b;
+  --chart-4: #b08276;
+  --chart-5: #a68ba3;
+  --sidebar: #101312;
+  --sidebar-foreground: #edeae0;
+  --sidebar-primary: #3ecf8e;
+  --sidebar-primary-foreground: #07130c;
+  --sidebar-accent: #1e2422;
+  --sidebar-accent-foreground: #edeae0;
+  --sidebar-border: rgba(237, 234, 224, 0.1);
+  --sidebar-ring: #3ecf8e;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html,
+  body {
+    height: 100%;
+  }
+  body {
+    @apply bg-background text-foreground;
+    overscroll-behavior: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  /* App-shell feel: no accidental text selection outside inputs */
+  body {
+    user-select: none;
+  }
+  input,
+  textarea {
+    user-select: text;
+  }
+}
+
+/* ---------------------------------------------------------------
+   ZYVRO tactical markers
+---------------------------------------------------------------- */
+.zyvro-marker {
+  /* ABSOLUTE, never relative: a relative marker participates in the map
+     container's flow layout, so its static position adds a constant pixel
+     offset on top of MapLibre's transform. 80px is invisible at full zoom
+     but tens of kilometres at low zoom — the pin only looked right when
+     fully zoomed in. Absolute + left/top 0 keeps the transform the ONLY
+     position source: pixel-exact at every zoom level. */
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  will-change: transform;
+}
+
+.zyvro-marker .zyvro-badge {
+  position: absolute;
+  inset: 1px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background: rgba(14, 17, 16, 0.96);
+  border: 2px solid var(--zy-hue, #8a918b);
+  color: var(--zy-hue, #8a918b);
+  font-weight: 800;
+  font-size: 15px;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.55), inset 0 0 0 1.5px rgba(0, 0, 0, 0.55);
+  transition: opacity 0.4s ease, border-color 0.4s ease, color 0.4s ease;
+  backdrop-filter: blur(2px);
+}
+
+/*
+ * Geometry contract: the element is exactly 40×40 and MapLibre anchors its
+ * CENTER on the true coordinate. NOTHING may visually extend BELOW that
+ * center — anything hanging under the badge (the old "YOU" pill, the status
+ * dot) reads as a pin tip, which is only a few metres off at full zoom but
+ * hundreds of metres off when zoomed out. Keep the bottom half clean.
+ */
+.zyvro-marker .zyvro-dot {
+  position: absolute;
+  top: -1px;
+  right: -1px;
+  width: 12px;
+  height: 12px;
+  border-radius: 9999px;
+  background: #5a615c;
+  border: 2.5px solid #0b0d0c;
+  transition: background 0.4s ease;
+}
+
+/* dim when offline / last seen */
+.zyvro-marker:not(.is-live) .zyvro-badge {
+  opacity: 0.72;
+  filter: saturate(0.82);
+}
+
+/* subtle live pulse — only while actively updating */
+.zyvro-marker.is-live .zyvro-badge::after {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  border-radius: 9999px;
+  border: 2px solid var(--zy-hue, #3ecf8e);
+  opacity: 0.5;
+  animation: zyvroPulse 2.4s cubic-bezier(0.22, 0.61, 0.36, 1) infinite;
+  pointer-events: none;
+}
+
+@keyframes zyvroPulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  70% {
+    transform: scale(1.85);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1.85);
+    opacity: 0;
+  }
+}
+
+.zyvro-marker.is-live .zyvro-dot {
+  background: #3ecf8e;
+  box-shadow: 0 0 8px rgba(62, 207, 142, 0.9);
+}
+
+/* own marker — distinct green + YOU treatment */
+.zyvro-marker.is-own .zyvro-badge {
+  border-color: #3ecf8e;
+  color: #3ecf8e;
+}
+
+.zyvro-marker .zyvro-you {
+  display: none;
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 6px);
+  transform: translateX(-50%);
+  padding: 2px 7px;
+  border-radius: 9999px;
+  background: #3ecf8e;
+  color: #07130c;
+  font-size: 8.5px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  white-space: nowrap;
+}
+
+.zyvro-marker.is-own .zyvro-you {
+  display: block;
+}
+
+/* paused sharing (self only) */
+.zyvro-marker.is-paused .zyvro-badge {
+  border-color: #4a504b;
+  color: #8a918b;
+}
+.zyvro-marker.is-paused .zyvro-dot {
+  background: #4a504b;
+  box-shadow: none;
+}
+.zyvro-marker.is-paused .zyvro-you {
+  background: #4a504b;
+  color: #0b0d0c;
+}
+
+/* small green live dot used in chips */
+.zyvro-live-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  background: #3ecf8e;
+  box-shadow: 0 0 6px rgba(62, 207, 142, 0.8);
+  animation: zyvroBlink 1.8s ease-in-out infinite;
+}
+
+@keyframes zyvroBlink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.45;
+  }
+}
+
+/* ---------------------------------------------------------------
+   MapLibre chrome — keep it tiny and dark
+---------------------------------------------------------------- */
+.maplibregl-ctrl-attrib {
+  background: rgba(11, 13, 12, 0.72) !important;
+  border-radius: 10px 0 0 0;
+  font-size: 10px !important;
+}
+.maplibregl-ctrl-attrib.maplibregl-compact {
+  border-radius: 10px 0 0 0;
+}
+.maplibregl-ctrl-attrib a,
+.maplibregl-ctrl-attrib {
+  color: #5a615c !important;
+}
+.maplibregl-ctrl-attrib-button {
+  filter: invert(0.75);
+}
+.maplibregl-canvas {
+  outline: none;
+}
+
+/* hide vaul's drag handle on the non-dismissible name sheet */
+.zyvro-sheet-no-handle > div:first-child {
+  display: none !important;
+}
+
+/* slim dark scrollbar inside sheets */
+.zyvro-sheet ::-webkit-scrollbar,
+[data-vaul-drawer] ::-webkit-scrollbar {
+  width: 4px;
+}
+.zyvro-sheet ::-webkit-scrollbar-thumb,
+[data-vaul-drawer] ::-webkit-scrollbar-thumb {
+  background: rgba(237, 234, 224, 0.14);
+  border-radius: 9999px;
+}
